@@ -1,20 +1,26 @@
 #! /bin/bash
 
 echo "Getting all links from website"
+# First wget is used to scrape the website
+# then we get all links wby greping for http
+# The formatting now makes it necessary to only get the last entry in the line, the link
+# we now sort all link alphabetically and remove duplicates
+# TODO: Is switching sort and uniq a faster way? Benchmark this
 wget --spider --force-html -r --follow-tags=a -l2 $1  2>&1 | grep  "http" | awk 'NF>1{print $NF}' | sort | uniq > internal_links.txt
 
 if [ ! -f output/final.json ]; then
-    echo "Removing old backup. Moving old result files to results.bkp"
-    rm -rf results.bkp
-    mv final.json results.bkp
+    echo "Removing old backup. Renaming old final.json to final.json.bkp"
+    rm -rf final.json.bkp
+    mv final.json final.json.bkp
 fi
 
+# Run lighthouse on each link
 while read line; do
      echo "Running test for $line"
      lighthouse --output=json --output-path=$(echo $line| sed 's;\/;;g').json --chrome-flags="--no-sandbox --headless --disable-gpu" $line
 done < internal_links.txt
 
-# merge all files into one and warp in json array
+# merge all files together and transform into json array
 jq -s '{ data: map(.) }' *.json > final.tmp
 
 rm *.json
