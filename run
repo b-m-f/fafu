@@ -1,0 +1,10 @@
+#! /bin/bash
+if [[ $# -eq 0 ]] ; then
+    echo 'No Website provided'
+    exit 0
+fi
+
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) . -t perf
+docker run --volume $(pwd):/app/output:Z perf $1
+
+

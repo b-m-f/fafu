@@ -1,0 +1,17 @@
+{
+  "name": "ubuntu-lighthouse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test-links.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node merge_json.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "lighthouse": "^4.3.0"
+  },
+  "dependencies": {}
+}

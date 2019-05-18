@@ -1,0 +1,25 @@
+#! /bin/bash
+
+echo "Getting all links from website"
+wget --spider --force-html -r --follow-tags=a -l2 $1  2>&1 | grep  "http" | awk 'NF>1{print $NF}' | sort | uniq > internal_links.txt
+
+if [ ! -f output/final.json ]; then
+    echo "Removing old backup. Moving old result files to results.bkp"
+    rm -rf results.bkp
+    mv final.json results.bkp
+fi
+
+while read line; do
+     echo "Running test for $line"
+     lighthouse --output=json --output-path=$(echo $line| sed 's;\/;;g').json --chrome-flags="--no-sandbox --headless --disable-gpu" $line
+done < internal_links.txt
+
+# merge all files into one and warp in json array
+jq -s '{ data: map(.) }' *.json > final.tmp
+
+rm *.json
+
+mv final.tmp output/final.json
+
+echo "Analysis Done! Results were written to final.json"
+exit 1
